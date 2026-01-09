@@ -30,10 +30,13 @@
 <!-- Running Services -->
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-activity"></i> Services</span>
-        <button class="btn btn-sm btn-outline-secondary" onclick="loadServices()">
-            <i class="bi bi-arrow-clockwise"></i> Refresh
-        </button>
+        <span><i class="bi bi-activity"></i> Services <small class="text-muted ms-2" id="last-refresh"></small></span>
+        <div>
+            <span class="badge bg-success me-2" id="auto-refresh-badge">Auto-refresh: ON</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadServices()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -148,6 +151,12 @@ async function loadServices() {
         const data = await response.json();
         
         const tbody = document.getElementById('services-table-body');
+        const lastRefresh = document.getElementById('last-refresh');
+        
+        // Update last refresh time
+        if (lastRefresh) {
+            lastRefresh.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+        }
         
         if (data.services.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No services</td></tr>';
@@ -158,11 +167,13 @@ async function loadServices() {
         data.services.forEach(svc => {
             const statusClass = svc.status === 'running' ? 'success' : 
                                svc.status === 'error' ? 'danger' : 
-                               svc.status === 'pending' ? 'warning' : 'secondary';
+                               svc.status === 'failed' ? 'danger' :
+                               svc.status === 'pending' ? 'warning' : 
+                               svc.status === 'starting' ? 'info' : 'secondary';
             
             tbody.innerHTML += `
                 <tr>
-                    <td><code>${svc.id.substring(0, 8)}...</code></td>
+                    <td><code>${svc.id.substring(0, 8)}</code></td>
                     <td>${svc.recipe_name}</td>
                     <td><span class="badge bg-${statusClass}">${svc.status}</span></td>
                     <td>${svc.node || '-'}</td>
@@ -172,7 +183,7 @@ async function loadServices() {
                         <button class="btn btn-sm btn-outline-info" onclick="showServiceDetails('${svc.id}')">
                             <i class="bi bi-info-circle"></i>
                         </button>
-                        ${svc.status === 'running' ? `
+                        ${svc.status === 'running' || svc.status === 'starting' ? `
                         <button class="btn btn-sm btn-outline-danger" onclick="stopService('${svc.id}')">
                             <i class="bi bi-stop-circle"></i>
                         </button>
@@ -267,7 +278,12 @@ async function showServiceDetails(serviceId) {
 document.addEventListener('DOMContentLoaded', () => {
     loadServerRecipes();
     loadServices();
-    setInterval(loadServices, 30000);
+    
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+        loadServices();
+        console.log('Auto-refreshed services at', new Date().toLocaleTimeString());
+    }, 5000);
 });
 </script>
 {% endblock %}

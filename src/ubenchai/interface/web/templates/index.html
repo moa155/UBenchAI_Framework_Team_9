@@ -420,8 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRecentServices();
     loadRecentBenchmarks();
     
-    // Refresh every 30 seconds
-    setInterval(loadDashboardStats, 30000);
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+        loadDashboardStats();
+        loadRecentServices();
+        loadRecentBenchmarks();
+    }, 5000);
 });
 </script>
 {% endblock %}
