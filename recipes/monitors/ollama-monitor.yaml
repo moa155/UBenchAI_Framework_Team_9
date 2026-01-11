@@ -1,0 +1,36 @@
+# UBenchAI Monitor Recipe: Ollama Monitoring
+name: ollama-monitor
+type: monitor
+description: "Monitoring stack for Ollama with custom metrics exporter"
+version: "1.0.0"
+
+targets: []
+
+prometheus:
+  port: 9090
+  retention: 7d
+  scrape_interval: 15s
+  scrape_configs:
+    - job_name: ollama_exporter
+      static_configs:
+        - targets: ['localhost:8000']
+
+grafana:
+  port: 3000
+  admin_user: admin
+  admin_password: admin
+  datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://localhost:9090
+      is_default: true
+
+alerting:
+  enabled: false
+
+scrape_interval: 15
+retention: 7d
+
+labels:
+  category: monitoring
+  target: ollama

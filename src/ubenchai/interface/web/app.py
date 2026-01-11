@@ -59,6 +59,92 @@ def create_app(config: Optional[dict] = None) -> Flask:
     register_api_routes(app)
     
     logger.info("Flask application created")
+
+    @app.route("/api/analysis/summary", methods=["GET"])
+    def api_analysis_summary():
+        """Get analysis summary of benchmark results."""
+        try:
+            # Load results from results directory
+            results_dir = Path("results")
+            all_results = []
+            
+            if results_dir.exists():
+                for f in results_dir.glob("**/*.json"):
+                    try:
+                        with open(f) as fp:
+                            data = json.load(fp)
+                            if isinstance(data, list):
+                                all_results.extend(data)
+                            else:
+                                all_results.append(data)
+                    except:
+                        pass
+            
+            # Calculate summary
+            models = {}
+            for r in all_results:
+                model = r.get("model", "unknown")
+                if model not in models:
+                    models[model] = {"runs": 0, "total_tps": 0, "values": []}
+                models[model]["runs"] += 1
+                tps = r.get("tokens_per_second", r.get("tps", 0))
+                models[model]["total_tps"] += tps
+                models[model]["values"].append(tps)
+            
+            summary = {
+                "total_runs": len(all_results),
+                "models_tested": len(models),
+                "models": {
+                    m: {
+                        "runs": d["runs"],
+                        "avg_throughput": d["total_tps"] / d["runs"] if d["runs"] > 0 else 0,
+                        "max_throughput": max(d["values"]) if d["values"] else 0,
+                        "min_throughput": min(d["values"]) if d["values"] else 0,
+                    }
+                    for m, d in models.items()
+                }
+            }
+            
+            return jsonify(summary)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    
+    @app.route("/api/models", methods=["GET"])
+    def api_list_models():
+        """List available models from Ollama."""
+        try:
+            import urllib.request
+            
+            # Try to get Ollama endpoint from running services
+            ollama_url = None
+            for service in service_registry.get_all():
+                if "ollama" in service.recipe_name.lower():
+                    ollama_url = service.endpoint
+                    break
+            
+            if not ollama_url:
+                return jsonify({"models": [], "error": "No Ollama service running"})
+            
+            url = f"{ollama_url}/api/tags"
+            with urllib.request.urlopen(url, timeout=10) as resp:
+                data = json.loads(resp.read())
+            
+            models = []
+            for m in data.get("models", []):
+                models.append({
+                    "name": m.get("name"),
+                    "size": m.get("size", 0),
+                    "size_gb": round(m.get("size", 0) / 1e9, 2),
+                    "family": m.get("details", {}).get("family", "unknown"),
+                    "parameters": m.get("details", {}).get("parameter_size", "unknown"),
+                    "quantization": m.get("details", {}).get("quantization_level", "unknown"),
+                })
+            
+            return jsonify({"models": models, "count": len(models)})
+        except Exception as e:
+            return jsonify({"models": [], "error": str(e)})
+
+
     return app
 
 

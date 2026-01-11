@@ -1,0 +1,65 @@
+# UBenchAI Client Recipe: Large Model Benchmark
+name: large-model-benchmark
+type: client
+description: "Benchmark for large language models (70B+)"
+version: "1.0.0"
+
+resources:
+  nodes: 1
+  gpus: 0
+  cpus_per_task: 4
+  memory: 8G
+  time: "02:00:00"
+  partition: cpu
+
+target:
+  protocol: http
+  port: 11434
+  timeout: 300  # 5 minutes for large models
+
+workload:
+  type: closed-loop
+  pattern:
+    type: constant
+    rate: 1  # Low rate for large models
+    duration: 600
+  request:
+    endpoint: /api/generate
+    method: POST
+    headers:
+      Content-Type: application/json
+    body_template: |
+      {
+        "model": "${MODEL_NAME}",
+        "prompt": "${PROMPT}",
+        "stream": false,
+        "options": {"num_predict": 200}
+      }
+  dataset:
+    type: synthetic
+    prompts:
+      - "Write a detailed explanation of how neural networks learn."
+      - "Explain the theory of relativity in simple terms."
+      - "Describe the process of protein synthesis in cells."
+      - "What are the main causes and effects of climate change?"
+      - "Explain how blockchain technology works."
+
+environment:
+  MODEL_NAME: "llama2:70b"
+  CONCURRENT_REQUESTS: "1"
+
+output:
+  format: json
+  metrics:
+    - latency_p50
+    - latency_p95
+    - latency_p99
+    - throughput
+    - tokens_per_second
+    - time_to_first_token
+
+labels:
+  category: benchmark
+  target: ollama
+  type: large-model
+  model_size: 70B+

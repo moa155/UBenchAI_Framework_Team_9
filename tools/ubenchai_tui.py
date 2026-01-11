@@ -98,6 +98,8 @@ class UBenchAITUI:
             ("5", "📈 Model Comparison", self.model_comparison),
             ("6", "🏆 Leaderboard", self.show_leaderboard),
             ("7", "📄 Generate Report", self.generate_report),
+            ("8", "🔬 Analysis Dashboard", self.analysis_dashboard),
+            ("9", "📡 Start Metrics Exporter", self.start_exporter),
             ("q", "🚪 Quit", None),
         ]
         
@@ -279,11 +281,20 @@ class UBenchAITUI:
             progress_bar(i, len(models), label=f"Testing {model}")
             
             try:
+                # Smart timeout: larger models need more time to load
+                model_lower = model.lower()
+                if any(x in model_lower for x in ['70b', '72b', '8x22b', '33b']):
+                    timeout = 180  # Large models: 3 minutes
+                elif any(x in model_lower for x in ['13b', '7b']):
+                    timeout = 60   # Medium models: 1 minute
+                else:
+                    timeout = 30   # Small models: 30 seconds
+                
                 url = f"http://{self.node}:11434/api/generate"
                 data = json.dumps({"model": model, "prompt": prompt, "stream": False}).encode()
                 req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
                 
-                with urllib.request.urlopen(req, timeout=180) as resp:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
                     result = json.loads(resp.read())
                 
                 tps = result.get('eval_count', 0) / (result.get('eval_duration', 1) / 1e9)
@@ -345,6 +356,93 @@ class UBenchAITUI:
         print(f"{Colors.GREEN}✓ Saved: {filename}{Colors.END}")
         input(f"\n{Colors.DIM}Press Enter...{Colors.END}")
     
+
+    def analysis_dashboard(self):
+        """Show analysis of benchmark results."""
+        print_header()
+        print(f"\n{Colors.BOLD}🔬 ANALYSIS DASHBOARD{Colors.END}\n")
+        
+        if not self.results:
+            print(f"  {Colors.YELLOW}No benchmark data yet!{Colors.END}")
+            print(f"  {Colors.DIM}Run some benchmarks first (options 2 or 5){Colors.END}")
+            input(f"\n{Colors.DIM}Press Enter...{Colors.END}")
+            return
+        
+        # Calculate statistics
+        models = {}
+        for r in self.results:
+            model = r.get('model', 'unknown')
+            if model not in models:
+                models[model] = []
+            models[model].append(r.get('tps', 0))
+        
+        print(f"  {Colors.BOLD}{'MODEL':<25} {'RUNS':>6} {'AVG':>10} {'MIN':>10} {'MAX':>10}{Colors.END}")
+        print(f"  {'─' * 65}")
+        
+        for model, tps_list in sorted(models.items(), key=lambda x: sum(x[1])/len(x[1]), reverse=True):
+            avg_tps = sum(tps_list) / len(tps_list)
+            min_tps = min(tps_list)
+            max_tps = max(tps_list)
+            print(f"  {model:<25} {len(tps_list):>6} {avg_tps:>9.1f} {min_tps:>9.1f} {max_tps:>9.1f}")
+        
+        print(f"\n  {Colors.BOLD}Summary:{Colors.END}")
+        total_runs = len(self.results)
+        all_tps = [r.get('tps', 0) for r in self.results]
+        print(f"  • Total benchmark runs: {total_runs}")
+        print(f"  • Models tested: {len(models)}")
+        print(f"  • Overall avg throughput: {sum(all_tps)/len(all_tps):.1f} tok/s")
+        print(f"  • Best single run: {max(all_tps):.1f} tok/s")
+        
+        input(f"\n{Colors.DIM}Press Enter...{Colors.END}")
+    
+    def start_exporter(self):
+        """Start the Ollama metrics exporter."""
+        print_header()
+        print(f"\n{Colors.BOLD}📡 OLLAMA METRICS EXPORTER{Colors.END}\n")
+        
+        import subprocess
+        import os
+        
+        exporter_path = os.path.join(os.path.dirname(__file__), '..', 'ollama-exporter', 'ollama_metrics_exporter.py')
+        
+        if not os.path.exists(exporter_path):
+            print(f"  {Colors.RED}Exporter not found!{Colors.END}")
+            print(f"  {Colors.DIM}Expected at: {exporter_path}{Colors.END}")
+            input(f"\n{Colors.DIM}Press Enter...{Colors.END}")
+            return
+        
+        # Update exporter to use current node
+        try:
+            with open(exporter_path, 'r') as f:
+                exporter_code = f.read()
+            
+            # Update OLLAMA_URL
+            import re
+            exporter_code = re.sub(
+                r'OLLAMA_URL = "http://[^"]*"',
+                f'OLLAMA_URL = "http://{self.node}:11434"',
+                exporter_code
+            )
+            
+            with open(exporter_path, 'w') as f:
+                f.write(exporter_code)
+            
+            print(f"  {Colors.GREEN}Starting exporter for node {self.node}...{Colors.END}")
+            print(f"  {Colors.DIM}Metrics will be available at http://localhost:8000/metrics{Colors.END}")
+            print(f"\n  {Colors.YELLOW}Note: Exporter runs in background. Press Ctrl+C to stop.{Colors.END}")
+            
+            # Start in foreground so user can see output
+            input(f"\n{Colors.DIM}Press Enter to start (Ctrl+C to cancel)...{Colors.END}")
+            
+            subprocess.run(['python3', exporter_path])
+            
+        except KeyboardInterrupt:
+            print(f"\n  {Colors.YELLOW}Exporter stopped.{Colors.END}")
+        except Exception as e:
+            print(f"  {Colors.RED}Error: {e}{Colors.END}")
+        
+        input(f"\n{Colors.DIM}Press Enter...{Colors.END}")
+
     def run(self):
         print_header()
         if not self.get_node():

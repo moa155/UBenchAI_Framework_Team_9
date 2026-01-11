@@ -1,0 +1,63 @@
+# UBenchAI Client Recipe: Ollama Stress Test
+name: ollama-stress-test
+type: client
+description: "Stress test for Ollama inference endpoints"
+version: "1.0.0"
+
+resources:
+  nodes: 1
+  gpus: 0
+  cpus_per_task: 8
+  memory: 16G
+  time: "01:00:00"
+  partition: cpu
+
+target:
+  protocol: http
+  port: 11434
+  timeout: 180
+
+workload:
+  type: open-loop
+  pattern:
+    type: constant
+    rate: 5
+    duration: 300
+  request:
+    endpoint: /api/generate
+    method: POST
+    headers:
+      Content-Type: application/json
+    body_template: |
+      {
+        "model": "${MODEL_NAME}",
+        "prompt": "${PROMPT}",
+        "stream": false,
+        "options": {"num_predict": 100}
+      }
+  dataset:
+    type: synthetic
+    prompts:
+      - "Explain quantum computing in simple terms."
+      - "Write a haiku about programming."
+      - "What is machine learning?"
+      - "Describe the water cycle."
+      - "Explain photosynthesis."
+
+environment:
+  MODEL_NAME: "tinyllama"
+  CONCURRENT_REQUESTS: "5"
+
+output:
+  format: json
+  metrics:
+    - latency_p50
+    - latency_p95
+    - latency_p99
+    - throughput
+    - tokens_per_second
+
+labels:
+  category: benchmark
+  target: ollama
+  type: stress-test
