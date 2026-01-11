@@ -52,7 +52,7 @@ def print_header():
 ║                          {Colors.WHITE}AI Benchmarking Framework for HPC{Colors.CYAN}                          ║
 ║                        {Colors.DIM}EUMaster4HPC Challenge 2025 - Team 9{Colors.CYAN}{Colors.BOLD}                         ║
 ╚═════════════════════════════════════════════════════════════════════════════════════╝
-{Colors.END}""")
+""")
 
 def progress_bar(current, total, width=50, label="Progress"):
     percent = current / total if total > 0 else 0
