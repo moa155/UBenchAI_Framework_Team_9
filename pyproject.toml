@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ubenchai"
-version = "0.1.0"
+version = "1.0.0"
 description = "Unified Benchmarking Framework for AI Factory Workloads on MeluXina"
 authors = ["Team 9 - EUMaster4HPC Student Challenge"]
 readme = "README.md"

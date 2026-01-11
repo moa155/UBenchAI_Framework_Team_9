@@ -37,7 +37,7 @@ class TestSlurmOrchestrator:
         
         assert "#!/bin/bash" in script
         assert "#SBATCH --job-name=test-job" in script
-        assert "#SBATCH --gpus=2" in script
+        assert "#SBATCH --gres=gpu:2" in script
         assert 'export MODEL="llama"' in script
     
     @patch('subprocess.run')
