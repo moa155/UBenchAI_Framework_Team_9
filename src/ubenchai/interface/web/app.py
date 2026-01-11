@@ -96,7 +96,7 @@ def register_routes(app: Flask) -> None:
         return jsonify({
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
-            "version": "0.1.0",
+            "version": "1.0.0",
         })
 
 
