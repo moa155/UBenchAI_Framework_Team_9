@@ -32,7 +32,7 @@ class Colors:
     RED = '\033[31m'
     WHITE = '\033[0m'
     BOLD = '\033[1m'
-    DIM = '\033[2m'
+    DIM = '\033[4m'
     END = '\033[0m'
 
 def clear_screen():
