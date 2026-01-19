@@ -5,9 +5,9 @@ Tests for the recipe loader module.
 import pytest
 from pathlib import Path
 
-from ubenchai.core.recipe_loader import RecipeLoader, get_recipe_loader
-from ubenchai.core.models import RecipeType, ServerRecipe, ClientRecipe
-from ubenchai.core.exceptions import RecipeNotFoundError, RecipeValidationError, RecipeParseError
+from inferbench.core.recipe_loader import RecipeLoader, get_recipe_loader
+from inferbench.core.models import RecipeType, ServerRecipe, ClientRecipe
+from inferbench.core.exceptions import RecipeNotFoundError, RecipeValidationError, RecipeParseError
 
 
 class TestRecipeLoader:
@@ -209,7 +209,7 @@ class TestResourceSpecValidation:
     
     def test_valid_memory_formats(self):
         """Should accept valid memory formats."""
-        from ubenchai.core.models import ResourceSpec
+        from inferbench.core.models import ResourceSpec
         
         for memory in ["16G", "32GB", "1024M", "512MB", "1024K"]:
             spec = ResourceSpec(memory=memory)
@@ -217,7 +217,7 @@ class TestResourceSpecValidation:
     
     def test_invalid_memory_format(self):
         """Should reject invalid memory format."""
-        from ubenchai.core.models import ResourceSpec
+        from inferbench.core.models import ResourceSpec
         from pydantic import ValidationError
         
         with pytest.raises(ValidationError):
@@ -225,7 +225,7 @@ class TestResourceSpecValidation:
     
     def test_valid_time_formats(self):
         """Should accept valid time formats."""
-        from ubenchai.core.models import ResourceSpec
+        from inferbench.core.models import ResourceSpec
         
         for time in ["01:00:00", "00:30:00", "10:00"]:
             spec = ResourceSpec(time=time)
@@ -233,7 +233,7 @@ class TestResourceSpecValidation:
     
     def test_invalid_time_format(self):
         """Should reject invalid time format."""
-        from ubenchai.core.models import ResourceSpec
+        from inferbench.core.models import ResourceSpec
         from pydantic import ValidationError
         
         with pytest.raises(ValidationError):

@@ -1,4 +1,4 @@
-# UBenchAI Server Recipe: Qdrant Vector Database
+# InferBench Server Recipe: Qdrant Vector Database
 # This recipe deploys Qdrant for vector similarity search benchmarking
 
 name: qdrant-vectordb

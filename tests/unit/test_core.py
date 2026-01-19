@@ -1,14 +1,14 @@
 """
-Tests for the core module of UBenchAI Framework.
+Tests for the core module of InferBench Framework.
 """
 
 import pytest
 from pathlib import Path
 
-from ubenchai import __version__
-from ubenchai.core.config import Config, get_config, SlurmConfig
-from ubenchai.core.exceptions import (
-    UBenchAIError,
+from inferbench import __version__
+from inferbench.core.config import Config, get_config, SlurmConfig
+from inferbench.core.exceptions import (
+    InferBenchError,
     RecipeNotFoundError,
     ServiceNotFoundError,
     SlurmError,
@@ -43,7 +43,7 @@ class TestConfig:
     
     def test_config_from_env(self, monkeypatch):
         """Config should load from environment variables."""
-        monkeypatch.setenv("UBENCHAI_LOG_LEVEL", "DEBUG")
+        monkeypatch.setenv("INFERBENCH_LOG_LEVEL", "DEBUG")
         monkeypatch.setenv("MELUXINA_USER", "testuser")
         monkeypatch.setenv("PROMETHEUS_PORT", "9999")
         
@@ -73,7 +73,7 @@ class TestExceptions:
     
     def test_base_exception(self):
         """Base exception should work correctly."""
-        err = UBenchAIError("Test error", {"key": "value"})
+        err = InferBenchError("Test error", {"key": "value"})
         assert "Test error" in str(err)
         assert err.message == "Test error"
         assert err.details == {"key": "value"}

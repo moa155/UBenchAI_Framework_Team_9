@@ -1,4 +1,4 @@
-# UBenchAI Client Recipe: Large Model Benchmark
+# InferBench Client Recipe: Large Model Benchmark
 name: large-model-benchmark
 type: client
 description: "Benchmark for large language models (70B+)"

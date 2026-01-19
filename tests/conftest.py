@@ -1,12 +1,12 @@
 """
-Pytest configuration and fixtures for UBenchAI Framework tests.
+Pytest configuration and fixtures for InferBench Framework tests.
 """
 
 import pytest
 from pathlib import Path
 
-from ubenchai.core.config import Config
-from ubenchai.core.models import (
+from inferbench.core.config import Config
+from inferbench.core.models import (
     ServerRecipe,
     ClientRecipe,
     MonitorRecipe,

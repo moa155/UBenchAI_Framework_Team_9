@@ -6,9 +6,9 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from ubenchai.core.slurm import SlurmOrchestrator, SlurmJobInfo
-from ubenchai.core.apptainer import ApptainerRuntime
-from ubenchai.core.models import ResourceSpec, ContainerSpec, ServiceStatus
+from inferbench.core.slurm import SlurmOrchestrator, SlurmJobInfo
+from inferbench.core.apptainer import ApptainerRuntime
+from inferbench.core.models import ResourceSpec, ContainerSpec, ServiceStatus
 
 
 class TestSlurmOrchestrator:

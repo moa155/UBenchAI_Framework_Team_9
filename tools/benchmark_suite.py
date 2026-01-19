@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-UBenchAI Framework - Comprehensive Benchmarking & Visualization Suite
-EUMaster4HPC Student Challenge 2025 - Team 9
-
+InferBench Framework - Comprehensive Benchmarking & Visualization Suite
+EUMaster4HPC Student Challenge 2025 
 This script provides:
 1. Automated benchmarking of LLM models
 2. Publication-ready graphs and plots
@@ -40,7 +39,7 @@ except ImportError:
 
 
 class BenchmarkSuite:
-    """Complete benchmarking suite for UBenchAI Framework."""
+    """Complete benchmarking suite for InferBench Framework."""
     
     def __init__(self, node: str, output_dir: str = "results"):
         self.node = node
@@ -51,8 +50,8 @@ class BenchmarkSuite:
             "metadata": {
                 "node": node,
                 "timestamp": self.timestamp,
-                "framework": "UBenchAI",
-                "team": "Team 9"
+                "framework": "InferBench",
+                "team": "EUMaster4HPC"
             },
             "benchmarks": {}
         }
@@ -295,7 +294,7 @@ class BenchmarkSuite:
         
         ax.set_xlabel('Model', fontweight='bold')
         ax.set_ylabel('Tokens per Second', fontweight='bold')
-        ax.set_title('UBenchAI Framework - Model Performance Comparison\nMeluXina Supercomputer (4x NVIDIA A100-40GB)', 
+        ax.set_title('InferBench Framework - Model Performance Comparison\nMeluXina Supercomputer (4x NVIDIA A100-40GB)', 
                      fontweight='bold', pad=20)
         
         # Add grid
@@ -303,7 +302,7 @@ class BenchmarkSuite:
         ax.set_axisbelow(True)
         
         # Add footer
-        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 - Team 9 | Node: {self.node}',
+        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 | Node: {self.node}',
                 ha='right', fontsize=9, style='italic', alpha=0.7)
         
         plt.tight_layout()
@@ -338,9 +337,9 @@ class BenchmarkSuite:
         ax2.set_title(f'Load Test - Latency\n{model}', fontweight='bold')
         ax2.grid(True, linestyle='--', alpha=0.7)
         
-        fig.suptitle('UBenchAI Framework - Load Testing Results', fontsize=16, fontweight='bold', y=1.02)
+        fig.suptitle('InferBench Framework - Load Testing Results', fontsize=16, fontweight='bold', y=1.02)
         
-        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 - Team 9 | Node: {self.node}',
+        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 | Node: {self.node}',
                 ha='right', fontsize=9, style='italic', alpha=0.7)
         
         plt.tight_layout()
@@ -375,9 +374,9 @@ class BenchmarkSuite:
         ax2.set_title(f'Generation Time vs Output Length\n{model}', fontweight='bold')
         ax2.grid(True, linestyle='--', alpha=0.7)
         
-        fig.suptitle('UBenchAI Framework - Token Length Analysis', fontsize=16, fontweight='bold', y=1.02)
+        fig.suptitle('InferBench Framework - Token Length Analysis', fontsize=16, fontweight='bold', y=1.02)
         
-        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 - Team 9 | Node: {self.node}',
+        fig.text(0.99, 0.01, f'EUMaster4HPC Challenge 2025 | Node: {self.node}',
                 ha='right', fontsize=9, style='italic', alpha=0.7)
         
         plt.tight_layout()
@@ -410,9 +409,9 @@ def create_architecture_diagram():
     }
     
     # Title
-    ax.text(8, 9.5, 'UBenchAI Framework Architecture', fontsize=20, fontweight='bold', 
+    ax.text(8, 9.5, 'InferBench Framework Architecture', fontsize=20, fontweight='bold', 
             ha='center', va='center', color=colors['header'])
-    ax.text(8, 9.0, 'EUMaster4HPC Student Challenge 2025 - Team 9', fontsize=12, 
+    ax.text(8, 9.0, 'EUMaster4HPC Student Challenge 2025', fontsize=12, 
             ha='center', va='center', style='italic', color='gray')
     
     # Boxes
@@ -452,7 +451,7 @@ def create_architecture_diagram():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='UBenchAI Benchmark Suite')
+    parser = argparse.ArgumentParser(description='InferBench Benchmark Suite')
     parser.add_argument('--node', type=str, required=True, help='Compute node name (e.g., mel2044)')
     parser.add_argument('--output', type=str, default='results', help='Output directory')
     parser.add_argument('--models', type=str, nargs='+', 
@@ -470,8 +469,8 @@ def main():
     
     print(f"""
 ╔══════════════════════════════════════════════════════════════════╗
-║        UBenchAI Framework - Comprehensive Benchmark Suite        ║
-║        EUMaster4HPC Student Challenge 2025 - Team 9              ║
+║        InferBench Framework - Comprehensive Benchmark Suite        ║
+║        EUMaster4HPC Student Challenge 2025              ║
 ╚══════════════════════════════════════════════════════════════════╝
 
 Node: {args.node}

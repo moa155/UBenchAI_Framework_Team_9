@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "ubenchai"
+name = "inferbench"
 version = "1.0.0"
 description = "Unified Benchmarking Framework for AI Factory Workloads on MeluXina"
-authors = ["Team 9 - EUMaster4HPC Student Challenge"]
+authors = ["EUMaster4HPC Student Challenge"]
 readme = "README.md"
 license = "Apache-2.0"
-packages = [{include = "ubenchai", from = "src"}]
+packages = [{include = "inferbench", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -31,7 +31,7 @@ mypy = "^1.14.0"
 pytest-asyncio = "^0.25.0"
 
 [tool.poetry.scripts]
-ubenchai = "ubenchai.interface.cli.main:cli"
+inferbench = "inferbench.interface.cli.main:cli"
 
 [build-system]
 requires = ["poetry-core"]

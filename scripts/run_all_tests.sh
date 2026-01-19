@@ -1,13 +1,13 @@
 #!/bin/bash
 #===============================================================================
-# UBenchAI Framework - Complete Performance Testing Suite
-# EUMaster4HPC Student Challenge 2025 - Team 9
+# InferBench Framework - Complete Performance Testing Suite
+# EUMaster4HPC Student Challenge 2025
 #===============================================================================
 
 # Prompt user for node name
 echo ""
 echo "╔══════════════════════════════════════════════════════════════════╗"
-echo "║        UBenchAI Framework - Complete Test Suite                  ║"
+echo "║        InferBench Framework - Complete Test Suite                  ║"
 echo "╚══════════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -29,7 +29,7 @@ fi
 echo "✅ Connected to $NODE"
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-RESULTS_DIR="/tmp/ubenchai_results_${NODE}_$TIMESTAMP"
+RESULTS_DIR="/tmp/inferbench_results_${NODE}_$TIMESTAMP"
 mkdir -p $RESULTS_DIR
 
 echo ""

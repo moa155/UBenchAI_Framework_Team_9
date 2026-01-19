@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from ubenchai.logs.manager import (
+from inferbench.logs.manager import (
     LogManager,
     LogEntry,
     LogCollection,
@@ -102,14 +102,14 @@ class TestLogManager:
     @pytest.fixture
     def manager(self, tmp_path):
         """Create a log manager with temp directories."""
-        with patch('ubenchai.logs.manager.get_config') as mock_config:
+        with patch('inferbench.logs.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             mock_config.return_value = config
             
-            with patch('ubenchai.logs.manager.get_service_registry'), \
-                 patch('ubenchai.logs.manager.get_run_registry'), \
-                 patch('ubenchai.logs.manager.get_slurm_orchestrator'):
+            with patch('inferbench.logs.manager.get_service_registry'), \
+                 patch('inferbench.logs.manager.get_run_registry'), \
+                 patch('inferbench.logs.manager.get_slurm_orchestrator'):
                 return LogManager()
     
     def test_parse_timestamp(self, manager):
@@ -135,7 +135,7 @@ class TestLogManager:
     
     def test_parse_log_line_python_format(self, manager):
         """Should parse Python logging format."""
-        line = "2024-01-04 12:30:45.123 | INFO | ubenchai.core:func:42 - Test message"
+        line = "2024-01-04 12:30:45.123 | INFO | inferbench.core:func:42 - Test message"
         
         entry = manager._parse_log_line(line, 1)
         
@@ -331,14 +331,14 @@ class TestLogManagerIntegration:
 2024-01-04 12:31:15 | ERROR | handler - Request failed
 """)
         
-        with patch('ubenchai.logs.manager.get_config') as mock_config:
+        with patch('inferbench.logs.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = logs_dir
             mock_config.return_value = config
             
-            with patch('ubenchai.logs.manager.get_service_registry'), \
-                 patch('ubenchai.logs.manager.get_run_registry'), \
-                 patch('ubenchai.logs.manager.get_slurm_orchestrator'):
+            with patch('inferbench.logs.manager.get_service_registry'), \
+                 patch('inferbench.logs.manager.get_run_registry'), \
+                 patch('inferbench.logs.manager.get_slurm_orchestrator'):
                 return LogManager()
     
     def test_read_log_file(self, manager_with_logs, tmp_path):

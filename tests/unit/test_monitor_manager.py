@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from ubenchai.monitors.manager import MonitorManager
-from ubenchai.core.models import (
+from inferbench.monitors.manager import MonitorManager
+from inferbench.core.models import (
     MonitorInstance,
     MonitorRecipe,
     ServiceInstance,
@@ -17,7 +17,7 @@ from ubenchai.core.models import (
     ContainerSpec,
     MetricsSpec,
 )
-from ubenchai.core.exceptions import MonitorError
+from inferbench.core.exceptions import MonitorError
 
 
 class TestMonitorManager:
@@ -73,13 +73,13 @@ class TestMonitorManager:
     @pytest.fixture
     def manager(self, mock_recipe_loader, mock_orchestrator, tmp_path):
         """Create a monitor manager with mocked dependencies."""
-        with patch('ubenchai.monitors.manager.get_config') as mock_config:
+        with patch('inferbench.monitors.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
             mock_config.return_value = config
             
-            with patch('ubenchai.monitors.manager.get_service_registry') as mock_svc_reg:
+            with patch('inferbench.monitors.manager.get_service_registry') as mock_svc_reg:
                 mock_svc_reg.return_value = MagicMock()
                 
                 return MonitorManager(
@@ -240,7 +240,7 @@ class TestMonitorManager:
         )
         
         assert "scrape_interval: 15s" in config
-        assert "ubenchai_services" in config
+        assert "inferbench_services" in config
         assert "prometheus" in config
     
     def test_generate_vllm_dashboard(self, manager):
@@ -249,7 +249,7 @@ class TestMonitorManager:
         
         assert dashboard["title"] == "vLLM Metrics"
         assert len(dashboard["panels"]) == 4
-        assert dashboard["uid"] == "ubenchai-vllm"
+        assert dashboard["uid"] == "inferbench-vllm"
 
 
 class TestMonitorManagerIntegration:
@@ -276,10 +276,10 @@ scrape_interval: 15
 retention: "1d"
 """)
         
-        from ubenchai.core.recipe_loader import RecipeLoader
+        from inferbench.core.recipe_loader import RecipeLoader
         loader = RecipeLoader(tmp_path / "recipes")
         
-        with patch('ubenchai.monitors.manager.get_config') as mock_config:
+        with patch('inferbench.monitors.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
@@ -291,7 +291,7 @@ retention: "1d"
             orchestrator.get_job_status.return_value = ServiceStatus.RUNNING
             orchestrator.get_job_node.return_value = "mel2091"
             
-            with patch('ubenchai.monitors.manager.get_service_registry'):
+            with patch('inferbench.monitors.manager.get_service_registry'):
                 return MonitorManager(
                     recipe_loader=loader,
                     orchestrator=orchestrator,

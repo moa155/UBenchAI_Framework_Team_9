@@ -1,4 +1,4 @@
-# UBenchAI Client Recipe: LLM Stress Test
+# InferBench Client Recipe: LLM Stress Test
 # Benchmark client for testing LLM inference servers
 
 name: llm-stress-test
@@ -18,7 +18,7 @@ resources:
 # Target service configuration
 target:
   # Will be resolved at runtime from server endpoint file
-  endpoint_file: /tmp/ubenchai/server_endpoint.txt
+  endpoint_file: /tmp/inferbench/server_endpoint.txt
   # Or specify directly:
   # url: http://localhost:8000
   protocol: http

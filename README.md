@@ -1,4 +1,4 @@
-# UBenchAI-Framework
+# InferBench-Framework
 
 **Unified Benchmarking Framework for AI Factory Workloads**
 
@@ -7,7 +7,7 @@
 
 ## 🎯 Project Overview
 
-UBenchAI-Framework is a modular benchmarking framework designed to evaluate the performance of AI Factory components on the **MeluXina supercomputer**. This project is part of the **EUMaster4HPC Student Challenge 2025-2026**.
+InferBench-Framework is a modular benchmarking framework designed to evaluate the performance of AI Factory components on the **MeluXina supercomputer**. This project is part of the **EUMaster4HPC Student Challenge 2025-2026**.
 
 The framework provides tools for:
 - 🖥️ **Server Management**: Deploy and manage AI services (vLLM, Ollama, Vector DBs)
@@ -45,8 +45,8 @@ The framework provides tools for:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/moa155/UBenchAI_Framework_Team_9.git
-   cd UBenchAI_Framework_Team_9
+   git clone https://github.com/moa155/InferBench-Framework.git
+   cd InferBench-Framework
    ```
 
 2. **Install dependencies**:
@@ -60,13 +60,13 @@ The framework provides tools for:
    eval $(poetry env activate)
    
    # Or use poetry run for individual commands
-   poetry run ubenchai --help
+   poetry run inferbench --help
    ```
 
 4. **Verify installation**:
    ```bash
-   ubenchai --version
-   ubenchai --help
+   inferbench --version
+   inferbench --help
    ```
 
 ## 🚀 Quick Start
@@ -74,35 +74,35 @@ The framework provides tools for:
 ### Start a Server
 ```bash
 # List available server recipes
-ubenchai server list
+inferbench server list
 
 # Start a vLLM inference server
-ubenchai server start --recipe vllm-inference
+inferbench server start --recipe vllm-inference
 ```
 
 ### Run a Benchmark Client
 ```bash
 # Run a stress test against the server
-ubenchai client run --recipe llm-stress-test
+inferbench client run --recipe llm-stress-test
 ```
 
 ### Monitor Services
 ```bash
 # Start monitoring stack (Prometheus + Grafana)
-ubenchai monitor start --recipe default-monitor --targets <job-id>
+inferbench monitor start --recipe default-monitor --targets <job-id>
 ```
 
 ### View Logs
 ```bash
 # Get logs for a specific service
-ubenchai logs show --service-id <service-id>
+inferbench logs show --service-id <service-id>
 ```
 
 ## 📁 Project Structure
 
 ```
-UBenchAI-Framework/
-├── src/ubenchai/           # Main source code
+InferBench-Framework/
+├── src/inferbench/           # Main source code
 │   ├── servers/            # Server module
 │   ├── clients/            # Client module
 │   ├── monitors/           # Monitor module
@@ -136,9 +136,9 @@ MELUXINA_USER=your_username
 MELUXINA_PROJECT=your_project
 
 # Framework Settings
-UBENCHAI_LOG_LEVEL=INFO
-UBENCHAI_CONFIG_DIR=/path/to/configs
-UBENCHAI_RESULTS_DIR=/path/to/results
+INFERBENCH_LOG_LEVEL=INFO
+INFERBENCH_CONFIG_DIR=/path/to/configs
+INFERBENCH_RESULTS_DIR=/path/to/results
 
 # Monitoring
 PROMETHEUS_PORT=9090
@@ -183,7 +183,7 @@ The framework integrates with Prometheus and Grafana for real-time monitoring:
 poetry run pytest
 
 # Run with coverage
-poetry run pytest --cov=src/ubenchai
+poetry run pytest --cov=src/inferbench
 
 # Run specific test file
 poetry run pytest tests/unit/test_servers.py

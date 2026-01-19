@@ -6,14 +6,14 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from ubenchai.clients.manager import ClientManager
-from ubenchai.core.models import (
+from inferbench.clients.manager import ClientManager
+from inferbench.core.models import (
     ClientRun,
     RunStatus,
     ClientRecipe,
     ResourceSpec,
 )
-from ubenchai.core.exceptions import (
+from inferbench.core.exceptions import (
     ClientRunError,
     ClientNotFoundError,
     RecipeNotFoundError,
@@ -73,13 +73,13 @@ class TestClientManager:
     @pytest.fixture
     def manager(self, mock_recipe_loader, mock_registry, mock_orchestrator, mock_runtime, tmp_path):
         """Create a client manager with mocked dependencies."""
-        with patch('ubenchai.clients.manager.get_config') as mock_config:
+        with patch('inferbench.clients.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
             mock_config.return_value = config
             
-            with patch('ubenchai.clients.manager.get_service_registry'):
+            with patch('inferbench.clients.manager.get_service_registry'):
                 return ClientManager(
                     recipe_loader=mock_recipe_loader,
                     registry=mock_registry,
@@ -291,10 +291,10 @@ workload:
       - "test prompt"
 """)
         
-        from ubenchai.core.recipe_loader import RecipeLoader
+        from inferbench.core.recipe_loader import RecipeLoader
         loader = RecipeLoader(tmp_path / "recipes")
         
-        with patch('ubenchai.clients.manager.get_config') as mock_config:
+        with patch('inferbench.clients.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
@@ -304,7 +304,7 @@ workload:
             orchestrator.submit_job.return_value = "99999999"
             orchestrator.generate_batch_script.return_value = "#!/bin/bash\necho test"
             
-            with patch('ubenchai.clients.manager.get_service_registry'):
+            with patch('inferbench.clients.manager.get_service_registry'):
                 return ClientManager(
                     recipe_loader=loader,
                     orchestrator=orchestrator,

@@ -1,4 +1,4 @@
-# UBenchAI Server Recipe: Ollama Inference Server
+# InferBench Server Recipe: Ollama Inference Server
 # This recipe deploys Ollama for lightweight LLM inference
 
 name: ollama-inference

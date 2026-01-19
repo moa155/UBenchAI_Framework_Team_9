@@ -1,9 +1,9 @@
 #!/bin/bash
-# UBenchAI-Framework Directory Structure Setup
+# InferBench-Framework Directory Structure Setup
 
 # Create main source directories
-mkdir -p src/ubenchai/{servers,clients,monitors,logs,interface,core,utils}
-mkdir -p src/ubenchai/interface/{cli,web}
+mkdir -p src/inferbench/{servers,clients,monitors,logs,interface,core,utils}
+mkdir -p src/inferbench/interface/{cli,web}
 
 # Create supporting directories  
 mkdir -p config
@@ -16,16 +16,16 @@ mkdir -p results
 mkdir -p examples
 
 # Create __init__.py files for Python packages
-touch src/ubenchai/__init__.py
-touch src/ubenchai/servers/__init__.py
-touch src/ubenchai/clients/__init__.py
-touch src/ubenchai/monitors/__init__.py
-touch src/ubenchai/logs/__init__.py
-touch src/ubenchai/interface/__init__.py
-touch src/ubenchai/interface/cli/__init__.py
-touch src/ubenchai/interface/web/__init__.py
-touch src/ubenchai/core/__init__.py
-touch src/ubenchai/utils/__init__.py
+touch src/inferbench/__init__.py
+touch src/inferbench/servers/__init__.py
+touch src/inferbench/clients/__init__.py
+touch src/inferbench/monitors/__init__.py
+touch src/inferbench/logs/__init__.py
+touch src/inferbench/interface/__init__.py
+touch src/inferbench/interface/cli/__init__.py
+touch src/inferbench/interface/web/__init__.py
+touch src/inferbench/core/__init__.py
+touch src/inferbench/utils/__init__.py
 touch tests/__init__.py
 touch tests/unit/__init__.py
 touch tests/integration/__init__.py

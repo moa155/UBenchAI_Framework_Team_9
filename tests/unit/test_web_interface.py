@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from datetime import datetime
 
-from ubenchai.core.models import ServiceStatus, RunStatus
+from inferbench.core.models import ServiceStatus, RunStatus
 
 
 class TestWebApp:
@@ -15,11 +15,11 @@ class TestWebApp:
     @pytest.fixture
     def app(self):
         """Create test Flask app."""
-        with patch('ubenchai.interface.web.app.get_server_manager'), \
-             patch('ubenchai.interface.web.app.get_client_manager'), \
-             patch('ubenchai.interface.web.app.get_monitor_manager'), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager'), \
+             patch('inferbench.interface.web.app.get_client_manager'), \
+             patch('inferbench.interface.web.app.get_monitor_manager'), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             return app
     
@@ -43,7 +43,7 @@ class TestWebApp:
         response = client.get('/')
         
         assert response.status_code == 200
-        assert b'UBenchAI' in response.data
+        assert b'InferBench' in response.data
     
     def test_services_page(self, client):
         """Should return services page."""
@@ -91,11 +91,11 @@ class TestServicesAPI:
         mock_manager = MagicMock()
         mock_manager.list_services.return_value = [mock_service]
         
-        with patch('ubenchai.interface.web.app.get_server_manager', return_value=mock_manager), \
-             patch('ubenchai.interface.web.app.get_client_manager'), \
-             patch('ubenchai.interface.web.app.get_monitor_manager'), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager', return_value=mock_manager), \
+             patch('inferbench.interface.web.app.get_client_manager'), \
+             patch('inferbench.interface.web.app.get_monitor_manager'), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             client = app.test_client()
             
@@ -123,11 +123,11 @@ class TestServicesAPI:
         mock_manager = MagicMock()
         mock_manager.get_service_status.return_value = mock_service
         
-        with patch('ubenchai.interface.web.app.get_server_manager', return_value=mock_manager), \
-             patch('ubenchai.interface.web.app.get_client_manager'), \
-             patch('ubenchai.interface.web.app.get_monitor_manager'), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager', return_value=mock_manager), \
+             patch('inferbench.interface.web.app.get_client_manager'), \
+             patch('inferbench.interface.web.app.get_monitor_manager'), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             client = app.test_client()
             
@@ -157,11 +157,11 @@ class TestBenchmarksAPI:
         mock_manager = MagicMock()
         mock_manager.list_runs.return_value = [mock_run]
         
-        with patch('ubenchai.interface.web.app.get_server_manager'), \
-             patch('ubenchai.interface.web.app.get_client_manager', return_value=mock_manager), \
-             patch('ubenchai.interface.web.app.get_monitor_manager'), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager'), \
+             patch('inferbench.interface.web.app.get_client_manager', return_value=mock_manager), \
+             patch('inferbench.interface.web.app.get_monitor_manager'), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             client = app.test_client()
             
@@ -179,11 +179,11 @@ class TestBenchmarksAPI:
             "summary": {"total_requests": 100, "success_rate": 95.0}
         }
         
-        with patch('ubenchai.interface.web.app.get_server_manager'), \
-             patch('ubenchai.interface.web.app.get_client_manager', return_value=mock_manager), \
-             patch('ubenchai.interface.web.app.get_monitor_manager'), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager'), \
+             patch('inferbench.interface.web.app.get_client_manager', return_value=mock_manager), \
+             patch('inferbench.interface.web.app.get_monitor_manager'), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             client = app.test_client()
             
@@ -208,11 +208,11 @@ class TestDashboardAPI:
         mock_monitor = MagicMock()
         mock_monitor.list_monitors.return_value = []
         
-        with patch('ubenchai.interface.web.app.get_server_manager', return_value=mock_server), \
-             patch('ubenchai.interface.web.app.get_client_manager', return_value=mock_client), \
-             patch('ubenchai.interface.web.app.get_monitor_manager', return_value=mock_monitor), \
-             patch('ubenchai.interface.web.app.get_log_manager'):
-            from ubenchai.interface.web.app import create_app
+        with patch('inferbench.interface.web.app.get_server_manager', return_value=mock_server), \
+             patch('inferbench.interface.web.app.get_client_manager', return_value=mock_client), \
+             patch('inferbench.interface.web.app.get_monitor_manager', return_value=mock_monitor), \
+             patch('inferbench.interface.web.app.get_log_manager'):
+            from inferbench.interface.web.app import create_app
             app = create_app({"TESTING": True})
             client = app.test_client()
             

@@ -1,4 +1,4 @@
-# UBenchAI Monitor Recipe: Ollama Monitoring
+# InferBench Monitor Recipe: Ollama Monitoring
 name: ollama-monitor
 type: monitor
 description: "Monitoring stack for Ollama with custom metrics exporter"

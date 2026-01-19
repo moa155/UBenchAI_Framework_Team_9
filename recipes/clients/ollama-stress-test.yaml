@@ -1,4 +1,4 @@
-# UBenchAI Client Recipe: Ollama Stress Test
+# InferBench Client Recipe: Ollama Stress Test
 name: ollama-stress-test
 type: client
 description: "Stress test for Ollama inference endpoints"

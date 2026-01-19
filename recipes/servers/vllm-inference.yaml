@@ -1,4 +1,4 @@
-# UBenchAI Server Recipe: vLLM Inference Server
+# InferBench Server Recipe: vLLM Inference Server
 # This recipe deploys a vLLM inference server on MeluXina
 
 name: vllm-inference

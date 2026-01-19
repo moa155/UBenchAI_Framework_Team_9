@@ -6,8 +6,8 @@ import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from ubenchai.core.registry import ServiceRegistry, RunRegistry
-from ubenchai.core.models import (
+from inferbench.core.registry import ServiceRegistry, RunRegistry
+from inferbench.core.models import (
     ServiceInstance,
     ServiceStatus,
     ClientRun,
@@ -16,7 +16,7 @@ from ubenchai.core.models import (
     ClientRecipe,
     ContainerSpec,
 )
-from ubenchai.core.exceptions import ServiceNotFoundError, ClientNotFoundError
+from inferbench.core.exceptions import ServiceNotFoundError, ClientNotFoundError
 
 
 @pytest.fixture

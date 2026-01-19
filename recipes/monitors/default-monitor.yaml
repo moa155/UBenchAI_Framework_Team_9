@@ -1,4 +1,4 @@
-# UBenchAI Monitor Recipe: Default Monitoring Stack
+# InferBench Monitor Recipe: Default Monitoring Stack
 # Prometheus + Grafana monitoring configuration
 
 name: default-monitor
@@ -22,10 +22,10 @@ prometheus:
         - targets: ['localhost:9100']
     
     # Dynamic targets added at runtime
-    - job_name: ubenchai_services
+    - job_name: inferbench_services
       file_sd_configs:
         - files:
-            - /tmp/ubenchai/prometheus/targets/*.json
+            - /tmp/inferbench/prometheus/targets/*.json
 
 # Grafana configuration
 grafana:

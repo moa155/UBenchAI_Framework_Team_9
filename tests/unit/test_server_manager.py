@@ -7,15 +7,15 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch, PropertyMock
 from datetime import datetime
 
-from ubenchai.servers.manager import ServerManager
-from ubenchai.core.models import (
+from inferbench.servers.manager import ServerManager
+from inferbench.core.models import (
     ServiceInstance,
     ServiceStatus,
     ServerRecipe,
     ContainerSpec,
     ResourceSpec,
 )
-from ubenchai.core.exceptions import (
+from inferbench.core.exceptions import (
     ServiceStartError,
     ServiceNotFoundError,
     RecipeNotFoundError,
@@ -74,7 +74,7 @@ class TestServerManager:
     @pytest.fixture
     def manager(self, mock_recipe_loader, mock_registry, mock_orchestrator, mock_runtime, tmp_path):
         """Create a server manager with mocked dependencies."""
-        with patch('ubenchai.servers.manager.get_config') as mock_config:
+        with patch('inferbench.servers.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
@@ -275,10 +275,10 @@ network:
 command: echo "Hello"
 """)
         
-        from ubenchai.core.recipe_loader import RecipeLoader
+        from inferbench.core.recipe_loader import RecipeLoader
         loader = RecipeLoader(tmp_path / "recipes")
         
-        with patch('ubenchai.servers.manager.get_config') as mock_config:
+        with patch('inferbench.servers.manager.get_config') as mock_config:
             config = MagicMock()
             config.logs_dir = tmp_path / "logs"
             config.results_dir = tmp_path / "results"
