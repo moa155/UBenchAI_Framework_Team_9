@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - InferBench{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+        <p class="text-muted">InferBench Framework - AI Factory Benchmarking on MeluXina</p>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Services</h6>
+                        <h2 class="mb-0" id="stats-services-running">-</h2>
+                        <small>Running / <span id="stats-services-total">-</span> Total</small>
+                    </div>
+                    <i class="bi bi-server" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="/services" class="text-white">View Services <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Benchmarks</h6>
+                        <h2 class="mb-0" id="stats-benchmarks-active">-</h2>
+                        <small>Active / <span id="stats-benchmarks-completed">-</span> Completed</small>
+                    </div>
+                    <i class="bi bi-bar-chart-line" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="/benchmarks" class="text-white">View Benchmarks <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-0">Monitors</h6>
+                        <h2 class="mb-0" id="stats-monitors-running">-</h2>
+                        <small>Running / <span id="stats-monitors-total">-</span> Total</small>
+                    </div>
+                    <i class="bi bi-graph-up" style="font-size: 3rem; opacity: 0.5;"></i>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <a href="/monitoring" class="text-white">View Monitoring <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning-charge"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="showStartServiceModal()">
+                        <i class="bi bi-play-circle"></i> Start Service
+                    </button>
+                    <button class="btn btn-outline-success" onclick="showStartBenchmarkModal()">
+                        <i class="bi bi-speedometer"></i> Run Benchmark
+                    </button>
+                    <button class="btn btn-outline-info" onclick="startMonitoring()">
+                        <i class="bi bi-graph-up"></i> Start Monitoring
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> System Information
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <td>Cluster</td>
+                        <td><strong>MeluXina</strong></td>
+                    </tr>
+                    <tr>
+                        <td>User</td>
+                        <td><strong>u103032</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Project</td>
+                        <td><strong>p200776</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Framework Version</td>
+                        <td><strong>1.0.0</strong></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-server"></i> Recent Services
+            </div>
+            <div class="card-body">
+                <div id="recent-services">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-line"></i> Recent Benchmarks
+            </div>
+            <div class="card-body">
+                <div id="recent-benchmarks">
+                    <p class="text-muted">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Service Modal -->
+<div class="modal fade" id="startServiceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Start Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Recipe</label>
+                    <select class="form-select" id="service-recipe-select">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="startService()">Start Service</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Start Benchmark Modal -->
+<div class="modal fade" id="startBenchmarkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Run Benchmark</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Recipe</label>
+                    <select class="form-select" id="benchmark-recipe-select">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Target Service (optional)</label>
+                    <select class="form-select" id="benchmark-target-select">
+                        <option value="">None - Use default endpoint</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="startBenchmark()">Run Benchmark</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load dashboard stats
+async function loadDashboardStats() {
+    try {
+        const response = await fetch('/api/dashboard/stats');
+        const data = await response.json();
+        
+        document.getElementById('stats-services-running').textContent = data.services.running;
+        document.getElementById('stats-services-total').textContent = data.services.total;
+        document.getElementById('stats-benchmarks-active').textContent = data.benchmarks.active;
+        document.getElementById('stats-benchmarks-completed').textContent = data.benchmarks.completed;
+        document.getElementById('stats-monitors-running').textContent = data.monitors.running;
+        document.getElementById('stats-monitors-total').textContent = data.monitors.total;
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+    }
+}
+
+// Load recent services
+async function loadRecentServices() {
+    try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        const container = document.getElementById('recent-services');
+        if (data.services.length === 0) {
+            container.innerHTML = '<p class="text-muted">No services yet</p>';
+            return;
+        }
+        
+        let html = '<ul class="list-group list-group-flush">';
+        data.services.slice(0, 5).forEach(svc => {
+            const statusClass = svc.status === 'running' ? 'success' : 
+                               svc.status === 'error' ? 'danger' : 'secondary';
+            html += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${svc.recipe_name}</span>
+                    <span class="badge bg-${statusClass}">${svc.status}</span>
+                </li>
+            `;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Failed to load services:', error);
+    }
+}
+
+// Load recent benchmarks
+async function loadRecentBenchmarks() {
+    try {
+        const response = await fetch('/api/benchmarks');
+        const data = await response.json();
+        
+        const container = document.getElementById('recent-benchmarks');
+        if (data.runs.length === 0) {
+            container.innerHTML = '<p class="text-muted">No benchmarks yet</p>';
+            return;
+        }
+        
+        let html = '<ul class="list-group list-group-flush">';
+        data.runs.slice(0, 5).forEach(run => {
+            const statusClass = run.status === 'completed' ? 'success' : 
+                               run.status === 'running' ? 'primary' :
+                               run.status === 'failed' ? 'danger' : 'secondary';
+            html += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>${run.recipe_name}</span>
+                    <span class="badge bg-${statusClass}">${run.status}</span>
+                </li>
+            `;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Failed to load benchmarks:', error);
+    }
+}
+
+// Modal functions
+function showStartServiceModal() {
+    loadServerRecipes();
+    new bootstrap.Modal(document.getElementById('startServiceModal')).show();
+}
+
+function showStartBenchmarkModal() {
+    loadClientRecipes();
+    loadRunningServices();
+    new bootstrap.Modal(document.getElementById('startBenchmarkModal')).show();
+}
+
+async function loadServerRecipes() {
+    const select = document.getElementById('service-recipe-select');
+    try {
+        const response = await fetch('/api/recipes/servers');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">Select a recipe...</option>';
+        data.recipes.forEach(recipe => {
+            select.innerHTML += `<option value="${recipe.name}">${recipe.name} - ${recipe.description || ''}</option>`;
+        });
+    } catch (error) {
+        select.innerHTML = '<option value="">Failed to load recipes</option>';
+    }
+}
+
+async function loadClientRecipes() {
+    const select = document.getElementById('benchmark-recipe-select');
+    try {
+        const response = await fetch('/api/recipes/clients');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">Select a recipe...</option>';
+        data.recipes.forEach(recipe => {
+            select.innerHTML += `<option value="${recipe.name}">${recipe.name}</option>`;
+        });
+    } catch (error) {
+        select.innerHTML = '<option value="">Failed to load recipes</option>';
+    }
+}
+
+async function loadRunningServices() {
+    const select = document.getElementById('benchmark-target-select');
+    try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">None - Use default endpoint</option>';
+        data.services.filter(s => s.status === 'running').forEach(svc => {
+            select.innerHTML += `<option value="${svc.id}">${svc.recipe_name} (${svc.id})</option>`;
+        });
+    } catch (error) {
+        console.error('Failed to load services:', error);
+    }
+}
+
+async function startService() {
+    const recipe = document.getElementById('service-recipe-select').value;
+    if (!recipe) {
+        alert('Please select a recipe');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/services', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipe: recipe})
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Service started! ID: ${data.service_id}`);
+            bootstrap.Modal.getInstance(document.getElementById('startServiceModal')).hide();
+            loadDashboardStats();
+            loadRecentServices();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function startBenchmark() {
+    const recipe = document.getElementById('benchmark-recipe-select').value;
+    const target = document.getElementById('benchmark-target-select').value;
+    
+    if (!recipe) {
+        alert('Please select a recipe');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/benchmarks', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipe: recipe, target_service_id: target || null})
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Benchmark started! ID: ${data.run_id}`);
+            bootstrap.Modal.getInstance(document.getElementById('startBenchmarkModal')).hide();
+            loadDashboardStats();
+            loadRecentBenchmarks();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function startMonitoring() {
+    try {
+        const response = await fetch('/api/monitors', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipe: 'default-monitor'})
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Monitoring started! ID: ${data.monitor_id}`);
+            loadDashboardStats();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardStats();
+    loadRecentServices();
+    loadRecentBenchmarks();
+    
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+        loadDashboardStats();
+        loadRecentServices();
+        loadRecentBenchmarks();
+    }, 5000);
+});
+</script>
+{% endblock %}

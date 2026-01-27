@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Benchmarks - InferBench{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-bar-chart-line"></i> Benchmarks</h1>
+        <p class="text-muted">Run and manage AI workload benchmarks</p>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-success" onclick="showStartBenchmarkModal()">
+            <i class="bi bi-play-circle"></i> Run Benchmark
+        </button>
+    </div>
+</div>
+
+<!-- Benchmark Runs -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-check"></i> Benchmark Runs <small class="text-muted ms-2" id="last-refresh-benchmarks"></small></span>
+        <div>
+            <span class="badge bg-success me-2">Auto-refresh: ON</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="loadBenchmarks()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Recipe</th>
+                        <th>Status</th>
+                        <th>Target</th>
+                        <th>Job ID</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="benchmarks-table-body">
+                    <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Start Benchmark Modal -->
+<div class="modal fade" id="startBenchmarkModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Run Benchmark</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Recipe</label>
+                    <select class="form-select" id="benchmark-recipe-select">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Target Service (optional)</label>
+                    <select class="form-select" id="benchmark-target-select">
+                        <option value="">None - Use default endpoint</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="startBenchmark()">Run Benchmark</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal fade" id="resultsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Benchmark Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="results-content">
+                Loading...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadBenchmarks() {
+    try {
+        const response = await fetch('/api/benchmarks');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('benchmarks-table-body');
+        
+        if (data.runs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No benchmarks yet</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.runs.forEach(run => {
+            const statusClass = run.status === 'completed' ? 'success' : 
+                               run.status === 'running' ? 'primary' :
+                               run.status === 'failed' ? 'danger' : 
+                               run.status === 'queued' ? 'warning' : 'secondary';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td><code>${run.id.substring(0, 8)}...</code></td>
+                    <td>${run.recipe_name}</td>
+                    <td><span class="badge bg-${statusClass}">${run.status}</span></td>
+                    <td>${run.target_service_id ? run.target_service_id.substring(0, 8) + '...' : '-'}</td>
+                    <td>${run.slurm_job_id || '-'}</td>
+                    <td>${new Date(run.created_at).toLocaleString()}</td>
+                    <td>
+                        ${run.status === 'completed' ? `
+                        <button class="btn btn-sm btn-outline-success" onclick="showResults('${run.id}')">
+                            <i class="bi bi-graph-up"></i> Results
+                        </button>
+                        ` : ''}
+                        ${run.status === 'running' || run.status === 'queued' ? `
+                        <button class="btn btn-sm btn-outline-danger" onclick="stopBenchmark('${run.id}')">
+                            <i class="bi bi-stop-circle"></i> Stop
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        console.error('Failed to load benchmarks:', error);
+    }
+}
+
+async function loadClientRecipes() {
+    const select = document.getElementById('benchmark-recipe-select');
+    try {
+        const response = await fetch('/api/recipes/clients');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">Select a recipe...</option>';
+        data.recipes.forEach(recipe => {
+            select.innerHTML += `<option value="${recipe.name}">${recipe.name} - ${recipe.workload_type}</option>`;
+        });
+    } catch (error) {
+        select.innerHTML = '<option value="">Failed to load recipes</option>';
+    }
+}
+
+async function loadRunningServices() {
+    const select = document.getElementById('benchmark-target-select');
+    try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        select.innerHTML = '<option value="">None - Use default endpoint</option>';
+        data.services.filter(s => s.status === 'running').forEach(svc => {
+            select.innerHTML += `<option value="${svc.id}">${svc.recipe_name} (${svc.id.substring(0, 8)}...)</option>`;
+        });
+    } catch (error) {
+        console.error('Failed to load services:', error);
+    }
+}
+
+function showStartBenchmarkModal() {
+    loadClientRecipes();
+    loadRunningServices();
+    new bootstrap.Modal(document.getElementById('startBenchmarkModal')).show();
+}
+
+async function startBenchmark() {
+    const recipe = document.getElementById('benchmark-recipe-select').value;
+    const target = document.getElementById('benchmark-target-select').value;
+    
+    if (!recipe) {
+        alert('Please select a recipe');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/benchmarks', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipe: recipe, target_service_id: target || null})
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Benchmark started! ID: ${data.run_id}`);
+            bootstrap.Modal.getInstance(document.getElementById('startBenchmarkModal')).hide();
+            loadBenchmarks();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function stopBenchmark(runId) {
+    if (!confirm('Are you sure you want to stop this benchmark?')) return;
+    
+    try {
+        const response = await fetch(`/api/benchmarks/${runId}`, {method: 'DELETE'});
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Benchmark stopped');
+            loadBenchmarks();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function showResults(runId) {
+    const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+    const content = document.getElementById('results-content');
+    content.innerHTML = 'Loading...';
+    modal.show();
+    
+    try {
+        const response = await fetch(`/api/benchmarks/${runId}/results`);
+        const data = await response.json();
+        
+        if (data.error) {
+            content.innerHTML = `<p class="text-danger">${data.error}</p>`;
+            return;
+        }
+        
+        const summary = data.summary || {};
+        const latency = data.latency || {};
+        
+        content.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Summary</h6>
+                    <table class="table table-sm">
+                        <tr><td>Total Requests</td><td><strong>${summary.total_requests || '-'}</strong></td></tr>
+                        <tr><td>Successful</td><td class="text-success"><strong>${summary.successful_requests || '-'}</strong></td></tr>
+                        <tr><td>Failed</td><td class="text-danger"><strong>${summary.failed_requests || '-'}</strong></td></tr>
+                        <tr><td>Success Rate</td><td><strong>${(summary.success_rate || 0).toFixed(2)}%</strong></td></tr>
+                        <tr><td>Throughput</td><td><strong>${(summary.actual_throughput || 0).toFixed(2)} req/s</strong></td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Latency (seconds)</h6>
+                    <table class="table table-sm">
+                        <tr><td>Min</td><td><strong>${(latency.min || 0).toFixed(4)}</strong></td></tr>
+                        <tr><td>Max</td><td><strong>${(latency.max || 0).toFixed(4)}</strong></td></tr>
+                        <tr><td>Mean</td><td><strong>${(latency.mean || 0).toFixed(4)}</strong></td></tr>
+                        <tr><td>Median</td><td><strong>${(latency.median || 0).toFixed(4)}</strong></td></tr>
+                        <tr><td>P95</td><td><strong>${(latency.p95 || 0).toFixed(4)}</strong></td></tr>
+                        <tr><td>P99</td><td><strong>${(latency.p99 || 0).toFixed(4)}</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+            <hr>
+            <small class="text-muted">Benchmark: ${data.benchmark || '-'} | Target: ${data.target || '-'}</small>
+        `;
+    } catch (error) {
+        content.innerHTML = `<p class="text-danger">Failed to load results: ${error.message}</p>`;
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadBenchmarks();
+    // Auto-refresh every 5 seconds
+    setInterval(loadBenchmarks, 5000);
+});
+</script>
+{% endblock %}

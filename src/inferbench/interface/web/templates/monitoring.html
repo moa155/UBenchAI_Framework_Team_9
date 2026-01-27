@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Monitoring - InferBench{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1><i class="bi bi-graph-up"></i> Monitoring</h1>
+        <p class="text-muted">Prometheus and Grafana monitoring stack</p>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-info" onclick="startMonitoring()">
+            <i class="bi bi-play-circle"></i> Start Monitoring
+        </button>
+    </div>
+</div>
+
+<!-- Monitor Instances -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-activity"></i> Monitor Instances</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="loadMonitors()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Recipe</th>
+                        <th>Status</th>
+                        <th>Prometheus URL</th>
+                        <th>Grafana URL</th>
+                        <th>Targets</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="monitors-table-body">
+                    <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Access Instructions -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="bi bi-info-circle"></i> Access Instructions
+    </div>
+    <div class="card-body">
+        <p>To access Prometheus/Grafana running on MeluXina compute nodes:</p>
+        <ol>
+            <li>Set up SSH port forwarding from your local machine:</li>
+            <pre class="bg-light p-2">ssh -p 8822 -L 9090:COMPUTE_NODE:9090 -L 3000:COMPUTE_NODE:3000 u103032@login.lxp.lu -i ~/.ssh/id_ed25519_mlux</pre>
+            <li>Replace <code>COMPUTE_NODE</code> with the actual node (e.g., <code>mel2091</code>)</li>
+            <li>Access in your browser:
+                <ul>
+                    <li>Prometheus: <a href="http://localhost:9090" target="_blank">http://localhost:9090</a></li>
+                    <li>Grafana: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> (admin/admin)</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadMonitors() {
+    try {
+        const response = await fetch('/api/monitors');
+        const data = await response.json();
+        
+        const tbody = document.getElementById('monitors-table-body');
+        
+        if (data.monitors.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No monitors running</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        data.monitors.forEach(mon => {
+            const statusClass = mon.status === 'running' ? 'success' : 
+                               mon.status === 'error' ? 'danger' : 'secondary';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td><code>${mon.id.substring(0, 8)}...</code></td>
+                    <td>${mon.recipe_name}</td>
+                    <td><span class="badge bg-${statusClass}">${mon.status}</span></td>
+                    <td>${mon.prometheus_url ? `<a href="${mon.prometheus_url}" target="_blank">${mon.prometheus_url}</a>` : '-'}</td>
+                    <td>${mon.grafana_url ? `<a href="${mon.grafana_url}" target="_blank">${mon.grafana_url}</a>` : '-'}</td>
+                    <td>${mon.targets.length}</td>
+                    <td>
+                        ${mon.status === 'running' ? `
+                        <button class="btn btn-sm btn-outline-danger" onclick="stopMonitor('${mon.id}')">
+                            <i class="bi bi-stop-circle"></i> Stop
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        console.error('Failed to load monitors:', error);
+    }
+}
+
+async function startMonitoring() {
+    try {
+        const response = await fetch('/api/monitors', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({recipe: 'default-monitor'})
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(`Monitoring started! ID: ${data.monitor_id}`);
+            loadMonitors();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function stopMonitor(monitorId) {
+    if (!confirm('Are you sure you want to stop this monitor?')) return;
+    
+    try {
+        const response = await fetch(`/api/monitors/${monitorId}`, {method: 'DELETE'});
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('Monitor stopped');
+            loadMonitors();
+        } else {
+            alert(`Error: ${data.error}`);
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadMonitors();
+    setInterval(loadMonitors, 30000);
+});
+</script>
+{% endblock %}
